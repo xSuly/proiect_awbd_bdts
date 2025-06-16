@@ -38,8 +38,8 @@ spring:
           filters:
             - StripPrefix=1
         - id: repair-service-route
-      uri: lb://REPAIR-SERVICE
-      predicates:
-        - Path=/repair-service/**
-      filters:
-        - StripPrefix=1
+          uri: lb://REPAIR-SERVICE
+          predicates:
+            - Path=/repair-service/**
+          filters:
+            - StripPrefix=1
