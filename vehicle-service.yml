@@ -3,6 +3,9 @@ server:
 eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+  client:
+    registry-fetch-interval-seconds: 10
+    fetch-registry: true
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/garage
