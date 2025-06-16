@@ -31,3 +31,9 @@ spring:
             - Path=/garage-service/**
           filters:
             - StripPrefix=1
+        - id: client-service-route
+          uri: lb://CLIENT-SERVICE
+          predicates:
+            - Path=/client-service/**
+          filters:
+            - StripPrefix=1
