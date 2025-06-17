@@ -22,4 +22,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,info,refresh"
+        include: "*"
+metrics:
+    tags:
+      application: ${spring.application.name}
