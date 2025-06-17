@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalii Complete Vehicul</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; color: #3d4852; margin: 0; padding: 2em; }
+        .main-container { max-width: 1200px; margin: 0 auto; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 25px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); }
+        h1, h2 { color: #2f4f4f; border-bottom: 3px solid #63b3ed; padding-bottom: 10px; margin-top: 0; }
+        h1 { text-align: center; border: none; font-size: 2.5em; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px 5px; text-align: left; }
+        th { font-weight: 600; color: #718096; font-size: 0.9em; text-transform: uppercase; }
+        td { border-top: 1px solid #edf2f7; }
+        .label { font-weight: 600; color: #4a5568; }
+        .value { color: #1a202c; }
+        .no-data { color: #a0aec0; font-style: italic; padding: 20px 0; }
+        a { display: inline-block; margin-bottom: 25px; background-color: #63b3ed; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; transition: background-color 0.2s; }
+        a:hover { background-color: #4299e1; }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <a href="/">&larr; Inapoi la Cautare</a>
+    <h1>Fisa Completa Vehicul: <span th:text="${vehicle.brand + ' ' + vehicle.model}"></span></h1>
+
+    <div class="grid-container">
+        <!-- Card Detalii Vehicul -->
+        <div class="card">
+            <h2>Date Vehicul</h2>
+            <table>
+                <tr><th>ID</th><td th:text="${vehicle.id}" class="value"></td></tr>
+                <tr><th>Marca & Model</th><td th:text="${vehicle.brand + ' ' + vehicle.model}" class="value"></td></tr>
+                <tr><th>An Fabricatie</th><td th:text="${vehicle.productionYear}" class="value"></td></tr>
+                <tr><th>Tip Caroserie</th><td th:text="${vehicle.type}" class="value"></td></tr>
+                <tr><th>Capacitate</th><td th:text="${vehicle.capacity} + ' locuri'" class="value"></td></tr>
+                <tr><th>Status</th><td th:text="${vehicle.status}" class="value"></td></tr>
+            </table>
+        </div>
+
+        <!-- Card Detalii Proprietar -->
+        <div class="card">
+            <h2>Proprietar (din Client-Service)</h2>
+            <div th:if="${client != null}">
+                <table>
+                    <tr><th>Nume</th><td th:text="${client.name}" class="value"></td></tr>
+                    <tr><th>Varsta</th><td th:text="${client.age} + ' ani'" class="value"></td></tr>
+                    <tr><th>Locatie</th><td th:text="${client.location}" class="value"></td></tr>
+                </table>
+            </div>
+            <p th:if="${client == null}" class="no-data">Fara proprietar asignat.</p>
+        </div>
+
+        <!-- Card Detalii Garaj & Mecanici -->
+        <div class="card">
+            <h2>Garaj & Mecanici (din Garage-Service)</h2>
+            <div th:if="${garage != null}">
+                <table>
+                    <tr><th>Locatie Garaj</th><td th:text="${garage.location}" class="value"></td></tr>
+                    <tr><th>Capacitate</th><td th:text="${garage.capacity} + ' locuri'" class="value"></td></tr>
+                </table>
+                <h3 style="margin-top: 20px; font-size: 1em; color: #4a5568;">Mecanici Asignati:</h3>
+                <ul th:if="${mechanics != null and !mechanics.isEmpty()}" style="padding-left: 20px; list-style-type: disc;">
+                    <li th:each="mechanic : ${mechanics}" style="border:none; padding: 2px 0;">
+                        <span th:text="|${mechanic.name} (${mechanic.specialization})|" class="value"></span>
+                    </li>
+                </ul>
+                <p th:if="${mechanics == null or mechanics.isEmpty()}" class="no-data">Niciun mecanic in acest garaj.</p>
+            </div>
+            <p th:if="${garage == null}" class="no-data">Masina nu este intr-un garaj.</p>
+        </div>
+
+        <!-- Card Istoric Reparatii -->
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2>Istoric Reparatii (din Repair-Service)</h2>
+            <div th:if="${!repairs.isEmpty()}">
+                <table>
+                    <thead><tr><th>Data</th><th>Descriere Problema</th><th>Status</th><th>Cost</th></tr></thead>
+                    <tbody>
+                    <tr th:each="r : ${repairs}">
+                        <td th:text="${#temporals.format(r.requestDate, 'dd-MMM-yyyy')}"></td>
+                        <td th:text="${r.issueDescription}"></td>
+                        <td th:text="${r.status}"></td>
+                        <td th:text="${r.totalCost} + ' RON'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p th:if="${repairs.isEmpty()}" class="no-data">Fara istoric de reparatii.</p>
+        </div>
+
+        <!-- Card Istoric Mentenanta -->
+        <div class="card">
+            <h2>Istoric Mentenanta (din Vehicle-Service)</h2>
+            <div th:if="${!maintenance.isEmpty()}">
+                <table>
+                    <thead><tr><th>Data</th><th>Descriere</th><th>Cost</th><th>Urmatoarea Revizie</th></tr></thead>
+                    <tbody>
+                    <tr th:each="m : ${maintenance}">
+                        <td th:text="${#temporals.format(m.date, 'dd-MMM-yyyy')}"></td>
+                        <td th:text="${m.description}"></td>
+                        <td th:text="${m.cost} + ' RON'"></td>
+                        <td th:text="${m.nextScheduledDate != null ? #temporals.format(m.nextScheduledDate, 'dd-MMM-yyyy') : '-'}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p th:if="${maintenance.isEmpty()}" class="no-data">Fara istoric de mentenanta.</p>
+        </div>
+
+        <!-- Card Istoric Alimentare -->
+        <div class="card">
+            <h2>Istoric Alimentare (din Vehicle-Service)</h2>
+            <div th:if="${!fuel.isEmpty()}">
+                <table>
+                    <thead><tr><th>Data</th><th>Litri Adaugati</th><th>Pret/Litru</th><th>Cost Total</th></tr></thead>
+                    <tbody>
+                    <tr th:each="f : ${fuel}">
+                        <td th:text="${#temporals.format(f.date, 'dd-MMM-yyyy')}"></td>
+                        <td th:text="${f.fuelAddedLiters} + ' L'"></td>
+                        <td th:text="${f.costPerLiter} + ' RON'"></td>
+                        <td th:text="${f.totalCost} + ' RON'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p th:if="${fuel.isEmpty()}" class="no-data">Fara istoric de alimentare.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

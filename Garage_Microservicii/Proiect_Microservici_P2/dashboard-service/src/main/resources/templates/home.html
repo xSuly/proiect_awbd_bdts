@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Cautare Vehicul</title>
+    <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; background: #2c3e50; } .search-box { text-align: center; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); } input[type="number"] { font-size: 1.2em; padding: 10px; border: 2px solid #ddd; border-radius: 4px; margin-right: 5px; } button { font-size: 1.2em; padding: 12px 20px; border: none; background: #16a085; color: white; border-radius: 4px; cursor: pointer; transition: background 0.3s; } button:hover { background: #1abc9c; } .error { color: #c0392b; margin-top: 15px; font-weight: bold; } </style>
+</head>
+<body>
+<div class="search-box">
+    <h1>Dashboard Central Service Auto</h1>
+    <form action="/search" method="post">
+        <input type="number" name="vehicleId" placeholder="Introdu ID Masina" required>
+        <button type="submit">Cauta</button>
+    </form>
+    <p th:if="${error}" th:text="${error}" class="error"></p>
+</div>
+</body>
+</html>
