@@ -15,6 +15,10 @@ management:
     gateway:
       enabled: true
 
+metrics:
+    tags:
+      application: ${spring.application.name}
+
 spring:
   cloud:
     gateway:
