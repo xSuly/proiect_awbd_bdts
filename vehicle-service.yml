@@ -3,7 +3,6 @@ server:
 eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-    prefer-ip-address: true
   client:
     registry-fetch-interval-seconds: 10
     fetch-registry: true
@@ -23,4 +22,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: "health,info,refresh"
