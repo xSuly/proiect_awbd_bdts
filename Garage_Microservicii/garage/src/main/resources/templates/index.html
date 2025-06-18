@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GarageJava</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        form {
+            margin: 20px auto;
+            width: 80%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input[type="text"], input[type="number"], input[type="date"], select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .pagination ul {
+            list-style-type: none;
+            display: flex;
+            gap: 5px;
+            padding: 0;
+        }
+
+        .pagination li a {
+            padding: 5px 10px;
+            text-decoration: none;
+            background-color: #eee;
+            border: 1px solid #ccc;
+            color: black;
+        }
+
+        .pagination li.active a {
+            font-weight: bold;
+            background-color: #ddd;
+        }
+
+        .actions .delete-form {
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn-delete {
+            display: inline-block;
+            padding: 5px 12px;
+            font-size: 0.9rem;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-logout,
+        .btn-logout:link,
+        .btn-logout:visited {
+            background-color: #e74c3c;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            background-color: #c0392b;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Liviu's Garages</h1>
+
+
+    <div class="form-section">
+        <h2>Garages Available</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Location</th>
+                <th>Capacity</th>
+                <th>Occupied Spaces</th>
+            </tr>
+            </thead>
+            <tbody th:if="${garages != null}">
+            <th:block th:each="garage : ${garages}">
+                <tr>
+                    <td th:text="${garage.id}"></td>
+                    <td th:text="${garage.location}"></td>
+                    <td th:text="${garage.capacity}"></td>
+                    <td th:text="${garage.occupiedSpaces}"></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-section">
+        <h3>Add New Garage</h3>
+        <form action="/addGarage" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label for="location">Location: </label>
+            <input type="text" id="location" name="location" required>
+
+            <label for="capacityGarage">Capacity: </label>
+            <input type="number" id="capacityGarage" name="capacity" required>
+
+            <button type="submit">Add Garage</button>
+        </form>
+    </div>
+
+    <div class="form-section">
+        <h2>Vehicles Available</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>
+                    <a th:href="@{/
+         (page=${page},
+          size=${size},
+          sortField='brand',
+          sortDirection=${sortField=='brand' ? reverseSortDirection : 'asc'})}">
+                        Brand
+                        <span th:if="${sortField=='brand'}"
+                              th:text="${sortDirection=='asc' ? '↑' : '↓'}"></span>
+                    </a>
+                </th>
+                <th>
+                    <a th:href="@{/
+         (page=${page},
+          size=${size},
+          sortField='model',
+          sortDirection=${sortField=='model' ? reverseSortDirection : 'asc'})}">
+                        Model
+                        <span th:if="${sortField=='model'}"
+                              th:text="${sortDirection=='asc' ? '↑' : '↓'}"></span>
+                    </a>
+                </th>
+                <th>Year</th>
+                <th>Type</th>
+                <th>Capacity</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="vehicle-tbody">
+            <th:block th:each="vehicle : ${vehicles}">
+                <tr>
+                    <td th:text="${vehicle.id}"></td>
+                    <td th:text="${vehicle.brand}"></td>
+                    <td th:text="${vehicle.model}"></td>
+                    <td th:text="${vehicle.productionYear}"></td>
+                    <td th:text="${vehicle.type}"></td>
+                    <td th:text="${vehicle.capacity}"></td>
+                    <td th:text="${vehicle.status}"></td>
+                    <td class="actions">
+                        <form class="delete-form" action="/vehicles/delete" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <input type="hidden" name="id" th:value="${vehicle.id}"/>
+                            <button
+                                    type="submit"
+                                    class="btn-delete"
+                                    onclick="return confirm('Are you sure you want to delete this vehicle?');">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        <ul class="pagination">
+            <li th:if="${page > 0}">
+                <a th:href="@{/(page=${page - 1}, size=${size},
+                   sortField=${sortField},
+                   sortDirection=${sortDirection})}">« Prev</a>
+            </li>
+            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${i == page} ? 'active'">
+                <a th:href="@{/(page=${i}, size=${size},
+                   sortField=${sortField},
+                   sortDirection=${sortDirection})}"
+                   th:text="${i + 1}">1</a>
+            </li>
+            <li th:if="${page < totalPages - 1}">
+                <a th:href="@{/(page=${page + 1}, size=${size},
+                   sortField=${sortField},
+                   sortDirection=${sortDirection})}">Next »</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="form-section">
+        <h3>Add New Vehicle</h3>
+        <form action="/addVehicle" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label for="brand">Brand: </label>
+            <input type="text" id="brand" name="brand" required>
+
+            <label for="model">Model: </label>
+            <input type="text" id="model" name="model" required>
+
+            <label for="productionYear">Production Year: </label>
+            <input type="number" id="productionYear" name="productionYear" required>
+
+            <label for="type">Type: </label>
+            <input type="text" id="type" name="type" required>
+
+            <label for="capacityVehicle">Capacity: </label>
+            <input type="number" id="capacityVehicle" name="capacity" required>
+
+            <label for="vehicleStatus">Status: </label>
+            <select id="vehicleStatus" name="status" required>
+                <option value="Available">Available</option>
+                <option value="In Use">In Use</option>
+                <option value="Service">Service</option>
+                <option value="Blocked">Blocked</option>
+            </select>
+
+            <label for="garageId">Garage:</label>
+            <select id="garageId" name="garageId">
+                <option value="">-- none --</option>
+                <th:block th:each="g : ${garages}">
+                    <option th:value="${g.id}" th:text="${g.location + ' (' + g.occupiedSpaces + '/' + g.capacity + ')'}"></option>
+                </th:block>
+            </select>
+
+            <button type="submit">Add Vehicle</button>
+        </form>
+    </div>
+
+    <div class="form-section">
+        <h2>Clients Available</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Location</th>
+                <th>Vehicle Brand</th>
+                <th>Vehicle Model</th>
+            </tr>
+            </thead>
+            <tbody th:each="client : ${clients}">
+            <tr>
+                <td th:text="${client.id}"></td>
+                <td th:text="${client.name}"></td>
+                <td th:text="${client.age}"></td>
+                <td th:text="${client.location}"></td>
+                <td th:text="${client.vehicle != null ? client.vehicle.brand : '—'}"></td>
+                <td th:text="${client.vehicle != null ? client.vehicle.model : '—'}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-section">
+        <h3>Add New Client</h3>
+        <form action="#" th:action="@{/addClient}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label for="clientName">Name:</label>
+            <input type="text" id="clientName" name="name" required>
+
+            <label for="clientAge">Age:</label>
+            <input type="number" id="clientAge" name="age" required>
+
+            <label for="clientLocation">Location:</label>
+            <input type="text" id="clientLocation" name="location" required>
+
+            <label for="clientVehicle">Vehicle:</label>
+            <select id="clientVehicle" name="vehicleId">
+                <option value="">-- none --</option>
+                <th:block th:each="v : ${vehicles}">
+                    <option th:value="${v.id}" th:text="${v.brand} + ' ' + ${v.model}"></option>
+                </th:block>
+            </select>
+
+            <button type="submit">Add Client</button>
+        </form>
+    </div>
+
+
+    <div class="form-section">
+        <h2>Mechanics Available</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Specialization</th>
+                <th>Garage</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="mech : ${mechanics}">
+                <tr>
+                    <td th:text="${mech.id}"></td>
+                    <td th:text="${mech.name}"></td>
+                    <td th:text="${mech.specialization}"></td>
+                    <td th:text="${mech.garage != null ? mech.garage.location : '—'}"></td>
+                    <td class="actions">
+                        <button
+                                class="btn-edit"
+                                type="button"
+                                th:data-id="${mech.id}"
+                                th:data-name="${mech.name}"
+                                th:data-spec="${mech.specialization}"
+                                th:data-garage-id="${mech.garage != null ? mech.garage.id : 0}">
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-section">
+        <h3>Add New Mechanic</h3>
+        <form action="/addMechanic" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label for="mechName">Name:</label>
+            <input type="text" id="mechName" name="name" required>
+
+            <label for="mechSpec">Specialization:</label>
+            <input type="text" id="mechSpec" name="specialization" required>
+
+            <label for="mechGarage">Garage:</label>
+            <select id="mechGarage" name="garageId">
+                <option value="">-- none --</option>
+                <th:block th:each="g : ${garages}">
+                    <option th:value="${g.id}" th:text="${g.location}"></option>
+                </th:block>
+            </select>
+
+            <button type="submit">Add Mechanic</button>
+        </form>
+    </div>
+
+    <div id="editMechanicModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditMechanicModal()">&times;</span>
+            <h3>Edit Mechanic</h3>
+            <form id="editMechanicForm" method="post" th:action="@{/updateMechanic}">
+                <input type="hidden" id="editMechId" name="id">
+
+                <label for="editMechName">Name:</label>
+                <input type="text" id="editMechName" name="name" required>
+
+                <label for="editMechSpec">Specialization:</label>
+                <input type="text" id="editMechSpec" name="specialization" required>
+
+                <label for="editMechGarage">Garage:</label>
+                <select id="editMechGarage" name="garageId">
+                    <option value="">-- none --</option>
+                    <th:block th:each="g : ${garages}">
+                        <option th:value="${g.id}" th:text="${g.location}"></option>
+                    </th:block>
+                </select>
+
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 6px;
+            width: 400px;
+            max-width: 90%;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content .close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+
+        .btn-edit {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-edit:hover {
+            background: #2980b9;
+        }
+    </style>
+
+    <script>
+        function openEditMechanicModal(id, name, spec, garageId) {
+            document.getElementById('editMechId').value = id;
+            document.getElementById('editMechName').value = name;
+            document.getElementById('editMechSpec').value = spec;
+            document.getElementById('editMechGarage').value = garageId;
+            document.getElementById('editMechanicModal').style.display = 'flex';
+        }
+
+        function closeEditMechanicModal() {
+            document.getElementById('editMechanicModal').style.display = 'none';
+        }
+
+        window.addEventListener('click', function (e) {
+            if (e.target.id === 'editMechanicModal') {
+                closeEditMechanicModal();
+            }
+        });
+    </script>
+
+    <script>
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const name = btn.dataset.name;
+                const spec = btn.dataset.spec;
+                const garageId = btn.dataset.garageId || '';
+
+                document.getElementById('editMechId').value = id;
+                document.getElementById('editMechName').value = name;
+                document.getElementById('editMechSpec').value = spec;
+                document.getElementById('editMechGarage').value = garageId;
+                document.getElementById('editMechanicModal').style.display = 'flex';
+            });
+        });
+    </script>
+
+    <div class="form-section">
+        <h2>Maintenance Logs</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Vehicle ID</th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Cost</th>
+                <th>Next Scheduled Date</th>
+            </tr>
+            </thead>
+            <tbody th:if="${maintenanceLogs != null}">
+            <th:block th:each="maintenanceLog : ${maintenanceLogs}">
+                <tr>
+                    <td th:text="${maintenanceLog.id}"></td>
+                    <td th:text="${maintenanceLog.vehicle.id}"></td>
+                    <td th:text="${maintenanceLog.date}"></td>
+                    <td th:text="${maintenanceLog.description}"></td>
+                    <td th:text="${maintenanceLog.cost}"></td>
+                    <td th:text="${maintenanceLog.nextScheduledDate}"></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-section">
+        <h3>Add New Maintenance Log</h3>
+        <form action="/addMaintenanceLog" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label for="vehicleId">Vehicle ID: </label>
+            <input type="number" id="vehicleId" name="vehicleId" required>
+
+            <label for="date">Date: </label>
+            <input type="date" id="date" name="date" required>
+
+            <label for="description">Description: </label>
+            <input type="text" id="description" name="description" required>
+
+            <label for="cost">Cost: </label>
+            <input type="number" id="cost" name="cost" required>
+
+            <label for="nextScheduledDate">Next Scheduled Date: </label>
+            <input type="date" id="nextScheduledDate" name="nextScheduledDate">
+
+            <button type="submit">Add Maintenance Log</button>
+        </form>
+    </div>
+
+    <div class="form-section">
+        <h2>Fuel Logs</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Vehicle ID</th>
+                <th>Date</th>
+                <th>Fuel Added (Liters)</th>
+                <th>Cost Per Liter</th>
+                <th>Total Cost</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="fuelLog : ${fuelLogs}">
+                <tr>
+                    <td th:text="${fuelLog.id}"></td>
+                    <td th:text="${fuelLog.vehicle.id}"></td>
+                    <td th:text="${fuelLog.date}"></td>
+                    <td th:text="${fuelLog.fuelAddedLiters}"></td>
+                    <td th:text="${fuelLog.costPerLiter}"></td>
+                    <td th:text="${fuelLog.totalCost}"></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-section">
+        <h3>Add New Fuel Log</h3>
+        <form action="/addFuelLog" method="post" onsubmit="return validateFuelForm()">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label for="vehicleIdFuel">Vehicle ID: </label>
+            <input type="number" id="vehicleIdFuel" name="vehicleId" required>
+
+            <label for="dates">Date: </label>
+            <input type="date" id="dates" name="date" required>
+
+            <label for="fuelAddedLiters">Fuel Added (Liters): </label>
+            <input type="number" id="fuelAddedLiters" name="fuelAddedLiters" min="0.01" step="0.01" required
+                   oninput="calculateTotalCost()">
+
+            <label for="costPerLiter">Cost Per Liter: </label>
+            <input type="number" id="costPerLiter" name="costPerLiter" min="0.01" step="0.01" required
+                   oninput="calculateTotalCost()">
+
+            <label for="fuelTotalCost">Total Cost: </label>
+            <input type="number" id="fuelTotalCost" name="totalCost" readonly>
+
+            <button type="submit">Add Fuel Log</button>
+        </form>
+    </div>
+
+    <div class="form-section">
+        <h2>Spare Parts</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Stock Quantity</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="sparePart : ${spareParts}">
+                <tr>
+                    <td th:text="${sparePart.id}"></td>
+                    <td th:text="${sparePart.name}"></td>
+                    <td th:text="${sparePart.type}"></td>
+                    <td th:text="${sparePart.price}"></td>
+                    <td th:text="${sparePart.stockQuantity}"></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-section">
+        <h3>Add New Spare Part</h3>
+        <form action="/addSparePart" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label for="spareName">Name: </label>
+            <input type="text" id="spareName" name="name" required>
+
+            <label for="spareType">Type: </label>
+            <input type="text" id="spareType" name="type" required>
+
+            <label for="sparePrice">Price: </label>
+            <input type="number" id="sparePrice" name="price" required>
+
+            <label for="spareStockQuantity">Stock Quantity: </label>
+            <input type="number" id="spareStockQuantity" name="stockQuantity" required>
+
+            <button type="submit">Add Spare Part</button>
+        </form>
+    </div>
+
+    <div class="form-section">
+        <h2>Repair Requests</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Vehicle ID</th>
+                <th>Issue</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Cost</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="repairRequest : ${repairRequests}">
+                <tr>
+                    <td th:text="${repairRequest.id}"></td>
+                    <td th:text="${repairRequest.vehicle.id}"></td>
+                    <td th:text="${repairRequest.issueDescription}"></td>
+                    <td th:text="${repairRequest.requestDate}"></td>
+                    <td th:text="${repairRequest.status}"></td>
+                    <td th:text="${repairRequest.totalCost}"></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-section">
+        <h3>Add New Repair Request</h3>
+        <form action="/addRepairRequest" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label for="repairVehicleId">Vehicle ID: </label>
+            <input type="number" id="repairVehicleId" name="vehicleId" required>
+
+            <label for="repairIssue">Issue Description: </label>
+            <input type="text" id="repairIssue" name="issueDescription" required>
+
+            <label for="repairCost">Cost: </label>
+            <input type="number" id="repairCost" name="totalCost" required>
+
+            <label for="repairStatus">Status: </label>
+            <select id="repairStatus" name="status" required>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
+
+            <button type="submit">Add Repair Request</button>
+        </form>
+    </div>
+
+    <div style="text-align: right; margin: 10px;">
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="btn-logout">Logout</button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    function calculateTotalCost() {
+        let fuelAdded = document.getElementById('fuelAddedLiters').value;
+        let costPerLiter = document.getElementById('costPerLiter').value;
+        let totalCost = fuelAdded * costPerLiter;
+        document.getElementById('fuelTotalCost').value = totalCost.toFixed(2);
+    }
+
+    function validateFuelForm() {
+        let fuelAdded = parseFloat(document.getElementById('fuelAddedLiters').value);
+        let costPerLiter = parseFloat(document.getElementById('costPerLiter').value);
+        if (fuelAdded <= 0 || costPerLiter <= 0) {
+            alert('Please enter valid values for fuel and cost.');
+            return false;
+        }
+        return true;
+    }
+</script>
+
+</body>
+</html>
